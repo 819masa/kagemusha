@@ -37,7 +37,7 @@ export function SummaryScreen({ state, dispatch }: SummaryScreenProps) {
           </div>
           <div>
             <dt>攻めた</dt>
-            <dd>おとり {totals.decoy}件</dd>
+            <dd>偽情報 {totals.decoy}件</dd>
           </div>
           <div>
             <dt>配った</dt>

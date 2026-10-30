@@ -23,7 +23,7 @@ export function BriefingScreen({ lawMode, onLaw, onBack, onStart }: BriefingScre
         <p>{lawMode === "current" ? "現行法では反撃できません。" : "条件がそろったときだけ、基盤を止めます。"}</p>
       </aside>
       <More>
-        <p>Mindの手元を押すと関所で止まります。影で読むと点が少し増えます。夜に、防いだものと誤検知を見ます。</p>
+        <p>ボタンを押すと、実行の前に止まります。隠した文字を見ると点が少し増えます。最後に結果を見ます。</p>
         <p>if法改正後の反撃は、攻撃の最中で、被害を広げないため、遮断では止まらず、証拠があるときだけです。</p>
       </More>
       <div className="briefing-actions">
