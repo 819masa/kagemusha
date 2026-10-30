@@ -183,7 +183,77 @@ p { margin: 0; }
   grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.9fr);
   gap: 14px;
   padding: 14px 16px;
+  align-content: start;
 }
+.immunity {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #243044;
+  color: #f4efe6;
+  border: 1px solid rgba(224, 194, 122, 0.45);
+}
+.immunity p { margin: 0; color: var(--gold); font-size: 12px; letter-spacing: 0.08em; }
+.immunity strong { font-family: var(--serif); font-size: 18px; }
+.immunity span { color: #d5d0c6; font-size: 13px; }
+.immunity button {
+  margin-left: auto;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1c1914;
+  min-height: 40px;
+  padding: 8px 16px;
+}
+.saved {
+  flex: none;
+  margin: 12px 14px 0;
+  padding: 12px 14px 10px;
+  border-radius: 16px;
+  background: #1e463c;
+  color: #f4fff9;
+}
+.saved span { display: block; font-size: 12px; letter-spacing: 0.08em; }
+.saved strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 34px;
+  line-height: 1.1;
+}
+.saved em { font-style: normal; font-size: 12px; opacity: 0.8; }
+.decide {
+  display: block;
+  width: min(100%, 440px);
+  margin: 16px auto 4px;
+  min-height: 64px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--vermilion);
+  color: #fffaf6;
+  font-family: var(--serif);
+  font-size: 22px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+.decide:hover { filter: brightness(1.08); }
+.decide:active { transform: scale(0.98); }
+.return-main,
+.submit-main {
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 14px;
+  background: #1c1914;
+  color: #fffaf6;
+  font-family: var(--serif);
+  font-size: 20px;
+}
+.return-main:hover,
+.submit-main:hover { filter: brightness(1.15); }
+.submit-main.is-sent { background: #2f7d68; }
 .workspace, .panel {
   min-height: 0;
   min-width: 0;
@@ -388,6 +458,7 @@ p { margin: 0; }
 .choice.is-locked:not(:disabled) { cursor: pointer; }
 .choice:disabled { opacity: 1; }
 .modal .stage-trap { color: #8d2e1c; background: #fff; outline-color: #d4533a; }
+.modal .ghost { color: #1c1914; border-color: #1c1914; background: #fff; }
 .choice.is-locked strong { text-decoration: line-through; }
 .actions {
   display: grid;

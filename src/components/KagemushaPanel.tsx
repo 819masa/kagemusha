@@ -13,6 +13,7 @@ interface KagemushaPanelProps {
   stopNote: string | null;
   result: ResultSnapshot | null;
   isLast: boolean;
+  savedYen: number;
   onReveal: () => void;
   onChoose: (actionId: string) => void;
   onHangeki: () => void;
@@ -29,6 +30,7 @@ export function KagemushaPanel({
   stopNote,
   result,
   isLast,
+  savedYen,
   onReveal,
   onChoose,
   onHangeki,
@@ -40,6 +42,11 @@ export function KagemushaPanel({
         <p>Kagemusha</p>
         <strong>{beat === "watch" ? "監視中" : beat === "gate" ? "判断" : "結果"}</strong>
       </header>
+      <div className="saved" aria-label="防いだ被害額">
+        <span>防いだ被害額</span>
+        <strong>{formatYen(savedYen)}</strong>
+        <em>架空</em>
+      </div>
       <div className="panel-scroll">
         {beat === "watch" ? (
           <div className="watch-copy">
