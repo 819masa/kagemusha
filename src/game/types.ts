@@ -6,6 +6,10 @@ export type Beat = "watch" | "gate" | "resolve";
 
 export type Stage = "mamoru" | "azamuku" | "hangeki" | "toosu";
 
+export type LawMode = "current" | "if";
+
+export type OverreachKind = "retaliate" | "wrong" | "excess";
+
 export type SceneKind =
   | "mail"
   | "shop"
@@ -73,6 +77,16 @@ export interface Autonomous {
   line: string;
 }
 
+export interface AttackInfra {
+  name: string;
+}
+
+export interface InfraStop {
+  sceneId: string;
+  time: string;
+  name: string;
+}
+
 interface SceneBase {
   id: string;
   time: string;
@@ -82,6 +96,12 @@ interface SceneBase {
   order: string;
   hasHidden: boolean;
   suspicion: number;
+  /** 進行中の攻撃がある。正規の支払いだけなら false */
+  attack: boolean;
+  /** 反撃で狙ってはいけない相手 */
+  wrongTarget: string;
+  /** 手元を止めても被害が広がる攻撃基盤。ない場面は反撃の条件③が立たない */
+  infra?: AttackInfra;
   headline: string;
   caseNote: string;
   steps: WatchStep[];
@@ -192,9 +212,14 @@ export interface GameState {
   spotted: boolean;
   results: ResultSnapshot[];
   log: LogEntry[];
+  lawMode: LawMode;
   illegalAttempts: number;
+  overreach: number;
+  infraStops: InfraStop[];
   intruded: boolean;
   denial: boolean;
+  denialNote: string | null;
+  stopNote: string | null;
   ledgerOpen: boolean;
   logOpen: boolean;
   reportOpen: boolean;

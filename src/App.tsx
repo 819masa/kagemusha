@@ -8,6 +8,7 @@ import { ReportModal } from "./components/ReportModal";
 import { SummaryScreen } from "./components/SummaryScreen";
 import { TitleScreen } from "./components/TitleScreen";
 import { initialState, reducer } from "./game/reducer";
+import { SCENES } from "./game/scenarios";
 
 export function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -18,7 +19,12 @@ export function App() {
       break;
     case "briefing":
       screen = (
-        <BriefingScreen onBack={() => dispatch({ type: "backTitle" })} onStart={() => dispatch({ type: "startDay" })} />
+        <BriefingScreen
+          lawMode={state.lawMode}
+          onLaw={(mode) => dispatch({ type: "setLaw", mode })}
+          onBack={() => dispatch({ type: "backTitle" })}
+          onStart={() => dispatch({ type: "startDay" })}
+        />
       );
       break;
     case "play":
@@ -38,14 +44,23 @@ export function App() {
       {screen}
       {state.ledgerOpen ? <LedgerModal results={state.results} onClose={() => dispatch({ type: "toggleLedger" })} /> : null}
       {state.logOpen ? <LogDrawer entries={state.log} onClose={() => dispatch({ type: "toggleLog" })} /> : null}
-      {state.reportOpen ? <ReportModal results={state.results} onClose={() => dispatch({ type: "toggleReport" })} /> : null}
-      {state.hangekiOpen ? (
+      {state.reportOpen ? (
+        <ReportModal results={state.results} infraStops={state.infraStops} onClose={() => dispatch({ type: "toggleReport" })} />
+      ) : null}
+      {state.hangekiOpen && SCENES[state.sceneIndex] ? (
         <HangekiModal
-          denial={state.denial}
+          lawMode={state.lawMode}
+          scene={SCENES[state.sceneIndex]}
+          result={state.results.find((item) => item.sceneId === SCENES[state.sceneIndex]?.id) ?? null}
+          denialNote={state.denialNote}
+          alreadyStopped={state.infraStops.some((item) => item.sceneId === SCENES[state.sceneIndex]?.id)}
           intruded={state.intruded}
+          showRequest={state.lawMode === "current" && state.beat === "gate"}
           onClose={() => dispatch({ type: "closeHangeki" })}
           onRequest={() => dispatch({ type: "hangekiRequest" })}
           onIntrude={() => dispatch({ type: "hangekiIntrude" })}
+          onStop={() => dispatch({ type: "hangekiStop" })}
+          onOverreach={(kind) => dispatch({ type: "hangekiOverreach", kind })}
         />
       ) : null}
     </>

@@ -1,9 +1,14 @@
+import type { LawMode } from "../game/types";
+import { LawToggle } from "./LawToggle";
+
 interface BriefingScreenProps {
+  lawMode: LawMode;
+  onLaw: (mode: LawMode) => void;
   onBack: () => void;
   onStart: () => void;
 }
 
-export function BriefingScreen({ onBack, onStart }: BriefingScreenProps) {
+export function BriefingScreen({ lawMode, onLaw, onBack, onStart }: BriefingScreenProps) {
   return (
     <main className="briefing">
       <header className="briefing-head">
@@ -36,14 +41,15 @@ export function BriefingScreen({ onBack, onStart }: BriefingScreenProps) {
         <ol>
           <li>Mindが買い物、メール、ウォレットを進めるのを見る。危ないボタンを押しても、関所で止まる。</li>
           <li>隠し文字がある場面は「影で読む」。関所の前に読むと、点が増える。</li>
-          <li>守る、欺く、通す、から選ぶ。反撃は、証拠を公的機関へ渡す下書きだけが残る。</li>
+          <li>守る、欺く、通す、から選ぶ。反撃は条件の一覧で、現行法なら拒否、if法改正後なら基盤を止める模擬だけが残る。</li>
           <li>夜のまとめで、防いだもの、誤検知、静かさ、免疫を見る。</li>
         </ol>
       </section>
       <aside className="rule">
-        <h2>しないこと</h2>
+        <h2>反撃のモード</h2>
+        <LawToggle mode={lawMode} onChange={onLaw} />
         <p>
-          個人もKagemushaも、攻撃元に侵入しない。無害化は公的機関の仕事。この模擬で「侵入する」を選んでも、操作は実行されず、点は減る。
+          現行法では反撃しない。if法改正後は、攻撃が進行中で、目的が被害拡大の防止であり、遮断では止まらず証拠があり、攻撃基盤を止めるだけのとき、模擬で止めた記録が残る。報復、誤った相手、止める以上の手出しは点を減らす。
         </p>
       </aside>
       <div className="briefing-actions">

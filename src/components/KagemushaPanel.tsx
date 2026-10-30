@@ -1,12 +1,14 @@
-import type { Beat, ResultSnapshot, Scene } from "../game/types";
+import type { Beat, LawMode, ResultSnapshot, Scene } from "../game/types";
 import { formatYen, stageLabel } from "../game/scoring";
 
 interface KagemushaPanelProps {
   scene: Scene;
+  lawMode: LawMode;
   beat: Beat;
   reveal: boolean;
   spotted: boolean;
-  denial: boolean;
+  denialNote: string | null;
+  stopNote: string | null;
   result: ResultSnapshot | null;
   isLast: boolean;
   onReveal: () => void;
@@ -17,10 +19,12 @@ interface KagemushaPanelProps {
 
 export function KagemushaPanel({
   scene,
+  lawMode,
   beat,
   reveal,
   spotted,
-  denial,
+  denialNote,
+  stopNote,
   result,
   isLast,
   onReveal,
@@ -67,9 +71,14 @@ export function KagemushaPanel({
             <p className="case-note">{scene.caseNote}</p>
           </>
         )}
-        {denial && beat === "gate" ? (
+          {denialNote && beat === "gate" ? (
           <p className="denial" role="alert">
-            侵入は実行できない。攻撃元には触れない。ほかの行動を選んでください。
+            {denialNote}
+          </p>
+        ) : null}
+        {stopNote ? (
+          <p className="stop-note" data-testid="infra-stopped">
+            {stopNote}
           </p>
         ) : null}
         {beat === "resolve" && result ? (
@@ -98,6 +107,9 @@ export function KagemushaPanel({
               {result.outcome.walletKept > 0 ? "ウォレットは守った " : ""}
               {result.outcome.walletLost > 0 ? "ウォレットは動いた " : ""}
             </p>
+            <button type="button" className="ghost" data-testid="open-hangeki" onClick={onHangeki}>
+              反撃の条件を見る
+            </button>
             <button type="button" className="primary" data-testid="next" onClick={onNext}>
               {isLast ? "22:00 夜のまとめへ" : "次の時刻へ"}
             </button>
@@ -124,7 +136,11 @@ export function KagemushaPanel({
           <button type="button" className="choice stage-hangeki" data-testid="open-hangeki" onClick={onHangeki}>
             <span className="choice-kicker">{scene.actions.length + 1} · 反撃</span>
             <strong>段階3を開く</strong>
-            <em>将来（if）。要請の下書きか、実行されない侵入。</em>
+            <em>
+              {lawMode === "if"
+                ? "if法改正後。条件がそろえば、攻撃基盤だけを止める模擬。"
+                : "現行法では実行されない。ifに切り替えると条件が見える。"}
+            </em>
           </button>
         </div>
       ) : null}

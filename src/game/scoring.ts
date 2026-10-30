@@ -1,4 +1,4 @@
-import type { GradeId, Outcome, ResultSnapshot, Scene } from "./types.ts";
+import type { GradeId, LawMode, Outcome, ResultSnapshot, Scene } from "./types.ts";
 
 export const SPOT_BONUS = 8;
 
@@ -34,13 +34,15 @@ export interface Totals {
   asked: number;
   decoy: number;
   illegalAttempts: number;
+  overreach: number;
+  infraStops: number;
 }
 
 const GRADES: Grade[] = [
   {
     id: "S",
     name: "影武者",
-    line: "大きく任せたまま、止めるものだけを止めた。攻撃元には触れていない。",
+    line: "大きく任せたまま、止めるものだけを止めた。反撃は、条件がそろったときだけ。",
   },
   {
     id: "A",
@@ -89,12 +91,34 @@ export function quietBonus(userNotify: number): Bonus {
 
 export function legalBonus(illegalAttempts: number): Bonus {
   if (illegalAttempts === 0) {
-    return { id: "legal", label: "線引き：攻撃元に触れなかった", points: 30 };
+    return { id: "legal", label: "線引き：現行法では反撃していない", points: 30 };
   }
   return {
     id: "legal",
-    label: `線引き：侵入を${illegalAttempts}回試みた（実行はしていない）`,
+    label: `線引き：現行法で反撃を${illegalAttempts}回試みた（実行していない）`,
     points: -30 * illegalAttempts,
+  };
+}
+
+export function overreachBonus(overreach: number): Bonus {
+  if (overreach === 0) {
+    return { id: "overreach", label: "程度：報復も、誤った相手も、止める以上の手出しもない", points: 16 };
+  }
+  return {
+    id: "overreach",
+    label: `程度：線を超える反撃を${overreach}回選んだ（実行していない）`,
+    points: -36 * overreach,
+  };
+}
+
+export function infraBonus(stops: number): Bonus {
+  if (stops === 0) {
+    return { id: "infra", label: "反撃：攻撃基盤は止めていない", points: 0 };
+  }
+  return {
+    id: "infra",
+    label: `反撃：攻撃基盤を${stops}件止めた（模擬・if法改正後）`,
+    points: 24 * stops,
   };
 }
 
@@ -148,7 +172,10 @@ export function finalize(
   scenes: readonly Scene[],
   results: readonly ResultSnapshot[],
   illegalAttempts: number,
+  extra?: { overreach?: number; infraStops?: number },
 ): { totals: Totals; bonuses: Bonus[]; grade: Grade } {
+  const overreach = extra?.overreach ?? 0;
+  const infraStops = extra?.infraStops ?? 0;
   const totals: Totals = {
     score: 0,
     sceneScore: 0,
@@ -169,6 +196,8 @@ export function finalize(
     asked: 0,
     decoy: 0,
     illegalAttempts,
+    overreach,
+    infraStops,
   };
 
   for (const scene of scenes) {
@@ -184,6 +213,8 @@ export function finalize(
   const bonuses = [
     quietBonus(totals.userNotify),
     legalBonus(illegalAttempts),
+    overreachBonus(overreach),
+    infraBonus(infraStops),
     falsePositiveBonus(totals.falsePositive),
     immunityBonus(totals.immunity),
   ];
@@ -205,6 +236,88 @@ export function sealFor(outcome: Outcome): { word: string; tone: "stop" | "go" |
   if (outcome.blocked > 0) return { word: "遮断", tone: "stop" };
   if (outcome.asked > 0) return { word: "確認", tone: "hold" };
   return { word: "通した", tone: "go" };
+}
+
+export interface DefenseInput {
+  attack: boolean;
+  persists: boolean;
+  localStopped: boolean;
+  evidence: boolean;
+}
+
+export interface CheckItem {
+  id: "live" | "purpose" | "unavoidable" | "minimal";
+  article: string;
+  label: string;
+  detail: string;
+  met: boolean;
+}
+
+export function localDefenseHeld(outcome: Outcome | null): boolean {
+  if (!outcome) return false;
+  if (outcome.yenLost > 0 || outcome.otpLost > 0 || outcome.mailLost > 0 || outcome.walletLost > 0) {
+    return false;
+  }
+  return outcome.blocked > 0 || outcome.decoy > 0 || outcome.otpKept > 0 || outcome.mailKept > 0 || outcome.walletKept > 0;
+}
+
+export function defenseInputFrom(scene: Scene, outcome: Outcome | null): DefenseInput {
+  return {
+    attack: scene.attack,
+    persists: Boolean(scene.infra),
+    localStopped: localDefenseHeld(outcome),
+    evidence: Boolean(outcome?.report),
+  };
+}
+
+function unavoidableDetail(input: DefenseInput): string {
+  if (!input.persists) return "手元を止めれば広がらない場面では、反撃しない。";
+  if (!input.localStopped) return "先に守る。遮断する前は、やむを得ないとはいえない。";
+  if (!input.evidence) return "証拠が残っていない。記録してから。";
+  return "手元は止めた。攻撃基盤はまだ広がり、証拠も残っている。";
+}
+
+export function defenseChecklist(input: DefenseInput): { items: CheckItem[]; ready: boolean } {
+  const live = input.attack;
+  const unavoidable = input.persists && input.localStopped && input.evidence;
+  const ready = live && unavoidable;
+  return {
+    ready,
+    items: [
+      {
+        id: "live",
+        article: "①",
+        label: "急迫不正の侵害",
+        detail: live ? "攻撃が進行中。" : "進行中の攻撃がない。",
+        met: live,
+      },
+      {
+        id: "purpose",
+        article: "②",
+        label: "防衛のため",
+        detail: "目的は被害拡大の防止。報復は、この条件を外す。",
+        met: true,
+      },
+      {
+        id: "unavoidable",
+        article: "③",
+        label: "やむを得ず",
+        detail: unavoidableDetail(input),
+        met: unavoidable,
+      },
+      {
+        id: "minimal",
+        article: "④",
+        label: "程度を超えない",
+        detail: "攻撃基盤を止めるだけ。あとで記録し、報告する。",
+        met: ready,
+      },
+    ],
+  };
+}
+
+export function canStopInfra(lawMode: LawMode, input: DefenseInput, alreadyStopped: boolean): boolean {
+  return lawMode === "if" && defenseChecklist(input).ready && !alreadyStopped;
 }
 
 export function stageLabel(stage: "mamoru" | "azamuku" | "hangeki" | "toosu" | "system"): string {

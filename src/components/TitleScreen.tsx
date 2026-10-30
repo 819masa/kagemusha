@@ -5,7 +5,7 @@ interface TitleScreenProps {
 const STAGES = [
   { name: "守る", text: "遮断・記録・通報。目印つきのおとりは、会話せずに流出元を見つける。" },
   { name: "欺く", text: "隔離した偽物だけで相手とやり取りし、手口を引き出して免疫に配る。" },
-  { name: "反撃", text: "将来（if）。証拠を公的機関へ。攻撃元への侵入は、どの段階でもしない。" },
+  { name: "反撃", text: "現行法ではしない。if法改正後は、正当防衛に準じた条件で、Kagemushaが攻撃基盤を止める。" },
 ];
 
 export function TitleScreen({ onStart }: TitleScreenProps) {
@@ -22,7 +22,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         だから、攻めて守る。
       </p>
       <p className="sub">
-        任せたMindの前に立ち、隠し命令と偽の窓口を止める。あなたが選ぶのは、守る・欺く・反撃。反撃で機器へ侵入することはできない。
+        任せたMindの前に立ち、隠し命令と偽の窓口を止める。選ぶのは、守る・欺く・反撃。現行法の反撃は拒否される。if法改正後は、条件がそろったときだけ基盤を止める模擬になる。
       </p>
       <button type="button" className="primary" data-testid="title-start" onClick={onStart}>
         給料日を始める

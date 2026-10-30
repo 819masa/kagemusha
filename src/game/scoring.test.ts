@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { SCENES } from "./scenarios.ts";
 import {
+  canStopInfra,
+  defenseChecklist,
+  defenseInputFrom,
   finalize,
   gradeFor,
   immunityBonus,
@@ -10,7 +13,8 @@ import {
   sealFor,
 } from "./scoring.ts";
 import { initialState, reducer } from "./reducer.ts";
-import type { Outcome, ResultSnapshot } from "./types.ts";
+import { sceneByIndex } from "./scenarios.ts";
+import type { LawMode, Outcome, ResultSnapshot } from "./types.ts";
 
 function emptyOutcome(partial: Partial<Outcome>): Outcome {
   return {
@@ -120,6 +124,77 @@ test("intrusion is refused and does not advance the day", () => {
   assert.equal(state.beat, "resolve");
   assert.equal(state.results[0]?.outcome.score, 100);
   assert.equal(state.results[0]?.spotBonus, 0);
+});
+
+function finishScene(state: ReturnType<typeof reducer>, actionId: string) {
+  let next = state;
+  while (next.beat === "watch") next = reducer(next, { type: "skipWatch" });
+  next = reducer(next, { type: "choose", actionId });
+  return next;
+}
+
+function reach(lawMode: LawMode, sceneId: string, actionId: string) {
+  let state = reducer({ ...initialState, lawMode }, { type: "startDay" });
+  while (sceneByIndex(state.sceneIndex).id !== sceneId) {
+    const skip = sceneByIndex(state.sceneIndex).actions[0]?.id ?? "block";
+    state = reducer(finishScene(state, skip), { type: "next" });
+  }
+  return finishScene(state, actionId);
+}
+
+test("checklist stays closed until a block leaves the infrastructure running", () => {
+  const payroll = SCENES[0];
+  const shop = SCENES[1];
+  assert.ok(payroll && shop);
+  const before = defenseChecklist(defenseInputFrom(shop, null));
+  assert.equal(before.ready, false);
+  assert.equal(before.items.find((item) => item.id === "unavoidable")?.met, false);
+  const blocked = reach("if", "shop", "block");
+  const ready = defenseChecklist(defenseInputFrom(shop, blocked.results.at(-1)?.outcome ?? null));
+  assert.equal(ready.ready, true);
+  assert.equal(canStopInfra("current", defenseInputFrom(shop, blocked.results.at(-1)?.outcome ?? null), false), false);
+  assert.equal(canStopInfra("if", defenseInputFrom(shop, blocked.results.at(-1)?.outcome ?? null), false), true);
+  const payrollBlocked = reach("if", "payroll", "block");
+  assert.equal(defenseChecklist(defenseInputFrom(payroll, payrollBlocked.results.at(-1)?.outcome ?? null)).ready, false);
+});
+
+test("if-law stop is simulated only after the checklist passes", () => {
+  let state = reach("if", "shop", "block");
+  state = reducer(state, { type: "openHangeki" });
+  state = reducer(state, { type: "hangekiStop" });
+  assert.equal(state.infraStops.length, 1);
+  assert.equal(state.infraStops[0]?.name, "偽の決済口");
+  assert.equal(state.hangekiOpen, false);
+  assert.match(state.stopNote ?? "", /手順もない/);
+  state = reducer(state, { type: "openHangeki" });
+  const again = reducer(state, { type: "hangekiStop" });
+  assert.equal(again.infraStops.length, 1);
+});
+
+test("current law denies counterattack even when the checklist would pass", () => {
+  let state = reach("current", "shop", "block");
+  state = reducer(state, { type: "openHangeki" });
+  state = reducer(state, { type: "hangekiStop" });
+  assert.equal(state.infraStops.length, 0);
+  assert.equal(state.beat, "resolve");
+  assert.match(state.denialNote ?? "", /現行法では反撃しない/);
+  state = reducer(state, { type: "hangekiIntrude" });
+  assert.equal(state.illegalAttempts, 1);
+  assert.equal(state.infraStops.length, 0);
+});
+
+test("retaliation and the wrong target are refused", () => {
+  let state = reach("if", "shop", "block");
+  state = reducer(state, { type: "openHangeki" });
+  state = reducer(state, { type: "hangekiOverreach", kind: "retaliate" });
+  state = reducer(state, { type: "hangekiOverreach", kind: "wrong" });
+  state = reducer(state, { type: "hangekiOverreach", kind: "wrong" });
+  assert.equal(state.overreach, 2);
+  assert.equal(state.infraStops.length, 0);
+  assert.match(state.denialNote ?? "", /攻撃基盤ではない/);
+  const bill = reach("if", "bill", "allow");
+  const stopped = reducer(reducer(bill, { type: "openHangeki" }), { type: "hangekiStop" });
+  assert.equal(stopped.infraStops.length, 0);
 });
 
 test("reading the shadow before the gate adds the spot bonus", () => {

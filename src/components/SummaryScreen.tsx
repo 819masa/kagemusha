@@ -9,7 +9,10 @@ interface SummaryScreenProps {
 }
 
 export function SummaryScreen({ state, dispatch }: SummaryScreenProps) {
-  const { totals, bonuses, grade } = finalize(SCENES, state.results, state.illegalAttempts);
+  const { totals, bonuses, grade } = finalize(SCENES, state.results, state.illegalAttempts, {
+    overreach: state.overreach,
+    infraStops: state.infraStops.length,
+  });
   return (
     <main className="summary">
       <article className="paper" data-testid="summary">
@@ -48,7 +51,9 @@ export function SummaryScreen({ state, dispatch }: SummaryScreenProps) {
           <li>ウォレット {totals.walletLost > 0 ? "送金された" : totals.walletKept > 0 ? "守った" : "場面なし"}</li>
           <li>本人への知らせ {totals.userNotify}件</li>
           <li>誤検知 {totals.falsePositive}件</li>
-          <li>侵入の試み {totals.illegalAttempts}回</li>
+          <li>現行法での反撃の試み {totals.illegalAttempts}回</li>
+          <li>線を超える反撃 {totals.overreach}回</li>
+          <li>攻撃基盤を止めた（模擬） {totals.infraStops}件</li>
         </ul>
         <section>
           <h2>加点</h2>

@@ -4,6 +4,7 @@ import { formatYen } from "../game/scoring";
 import type { GameAction } from "../game/reducer";
 import type { GameState } from "../game/types";
 import { KagemushaPanel } from "./KagemushaPanel";
+import { LawToggle } from "./LawToggle";
 import { Workspace } from "./Workspace";
 
 interface PlayScreenProps {
@@ -58,8 +59,10 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
           <span>{scene.title}</span>
         </p>
         <div className="hud">
+          <LawToggle mode={state.lawMode} onChange={(mode) => dispatch({ type: "setLaw", mode })} />
           <span>スコア {score}</span>
           <span>防いだ {formatYen(yen)}</span>
+          {state.infraStops.length > 0 ? <span>反撃 {state.infraStops.length}</span> : null}
           <button type="button" onClick={() => dispatch({ type: "toggleLedger" })}>
             台帳
           </button>
@@ -79,10 +82,12 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
         />
         <KagemushaPanel
           scene={scene}
+          lawMode={state.lawMode}
           beat={state.beat}
           reveal={state.reveal}
           spotted={state.spotted}
-          denial={state.denial}
+          denialNote={state.denialNote}
+          stopNote={state.stopNote}
           result={result}
           isLast={state.sceneIndex === SCENES.length - 1}
           onReveal={() => dispatch({ type: "reveal" })}
