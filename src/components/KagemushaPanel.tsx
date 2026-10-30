@@ -35,10 +35,10 @@ export function KagemushaPanel({
   onNext,
 }: KagemushaPanelProps) {
   return (
-    <aside className="panel" aria-label="Kagemushaの関所">
+    <aside className="panel" aria-label="Kagemushaの判断">
       <header className="panel-head">
         <p>Kagemusha</p>
-        <strong>{beat === "watch" ? "監視中" : beat === "gate" ? "関所" : "結果"}</strong>
+        <strong>{beat === "watch" ? "監視中" : beat === "gate" ? "判断" : "結果"}</strong>
       </header>
       <div className="panel-scroll">
         {beat === "watch" ? (
@@ -46,7 +46,7 @@ export function KagemushaPanel({
             <p>{scene.mind}が進めています。</p>
             {scene.hasHidden ? (
               <button type="button" className="reveal" data-testid="reveal" onClick={onReveal}>
-                {reveal ? "影は見えている" : "影で読む"}
+                {reveal ? "隠した文字を表示中" : "隠した文字を見る"}
               </button>
             ) : null}
             {spotted ? <p className="spot">+8</p> : null}
@@ -86,7 +86,7 @@ export function KagemushaPanel({
           <div className="result" data-testid="result">
             <p className="choice-kicker">
               {stageLabel(result.stage)} · {result.outcome.score + result.spotBonus}点
-              {result.spotBonus > 0 ? "（影で読む +8）" : ""}
+              {result.spotBonus > 0 ? "（隠した文字 +8）" : ""}
             </p>
             <h3>{result.outcome.resultTitle}</h3>
             <p className="impact">
@@ -114,13 +114,13 @@ export function KagemushaPanel({
               反撃の条件を見る
             </button>
             <button type="button" className="primary" data-testid="next" onClick={onNext}>
-              {isLast ? "22:00 夜のまとめへ" : "次の時刻へ"}
+              {isLast ? "22:00 の結果へ" : "次の時刻へ"}
             </button>
           </div>
         ) : null}
       </div>
       {beat === "gate" ? (
-        <div className="actions" role="group" aria-label="関所の行動">
+        <div className="actions" role="group" aria-label="選ぶ行動">
           {scene.actions.map((item, index) => (
             <button
               key={item.id}

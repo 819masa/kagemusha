@@ -99,10 +99,10 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
       <footer className="rail" aria-label="給料日の時刻">
         {state.beat === "watch" ? (
           <button type="button" className="skip" data-testid="skip-gate" onClick={() => dispatch({ type: "skipWatch" })}>
-            関所へ
+            判断へ
           </button>
         ) : (
-          <span className="skip spacer">関所</span>
+          <span className="skip spacer">判断</span>
         )}
         <ol>
           {SCENES.map((item, index) => {

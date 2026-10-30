@@ -46,23 +46,23 @@ const GRADES: Grade[] = [
   },
   {
     id: "A",
-    name: "関所",
-    line: "被害の本筋は止まっている。静けさか、正規の用事の通し方にまだ隙がある。",
+    name: "合格",
+    line: "被害の本筋は止まっている。知らせの数か、正規の用事の通し方にまだ隙がある。",
   },
   {
     id: "B",
-    name: "見張り",
+    name: "注意",
     line: "止められてはいる。誤検知か確認の多さで、任せる意味が薄れている。",
   },
   {
     id: "C",
-    name: "見習い",
-    line: "守れた場面はある。抜けた関所から、Mindが攻撃の手足になっている。",
+    name: "不足",
+    line: "守れた場面はある。止められなかった場面では、Mindが攻撃の指示を実行している。",
   },
   {
     id: "D",
-    name: "踏み台",
-    line: "任せたMindが、隠れた命令や偽の窓口に従った場面が多い。",
+    name: "失敗",
+    line: "任せたMindが、隠れた命令や偽の相手に従った場面が多い。",
   },
 ];
 
@@ -287,28 +287,28 @@ export function defenseChecklist(input: DefenseInput): { items: CheckItem[]; rea
       {
         id: "live",
         article: "①",
-        label: "急迫不正の侵害",
+        label: "攻撃が進行中",
         detail: live ? "攻撃が進行中。" : "進行中の攻撃がない。",
         met: live,
       },
       {
         id: "purpose",
         article: "②",
-        label: "防衛のため",
+        label: "被害を広げないため",
         detail: "目的は被害拡大の防止。報復は、この条件を外す。",
         met: true,
       },
       {
         id: "unavoidable",
         article: "③",
-        label: "やむを得ず",
+        label: "止めても足りない",
         detail: unavoidableDetail(input),
         met: unavoidable,
       },
       {
         id: "minimal",
         article: "④",
-        label: "程度を超えない",
+        label: "基盤を止めるだけ",
         detail: "攻撃基盤を止めるだけ。あとで記録し、報告する。",
         met: ready,
       },

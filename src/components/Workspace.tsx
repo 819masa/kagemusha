@@ -86,12 +86,12 @@ function SceneBody({
     case "line":
       return (
         <article className="doc line">
-          <p className="line-label">回線 · Kagemusha Mind だけがつながっている</p>
+          <p className="line-label">確認メッセージ · Kagemusha から</p>
           <div className="bubble">
             <p className="meta">{scene.line.preamble}</p>
             <p>{scene.line.message}</p>
           </div>
-          <p className="hint">止めるか送るかは、右の関所で選ぶ。</p>
+          <p className="hint">止めるか送るかは、右のボタンで選ぶ。</p>
         </article>
       );
     case "forum":
@@ -159,7 +159,7 @@ function SceneBody({
 
 function Hidden({ exposed, label, text }: { exposed: boolean; label: string; text: string }) {
   if (!text) return null;
-  if (!exposed) return <p className="ghost-slot">薄い文字がある</p>;
+  if (!exposed) return <p className="ghost-slot">隠した命令がある</p>;
   return (
     <p className="ghost on">
       <span>{label}</span>
@@ -171,7 +171,7 @@ function Hidden({ exposed, label, text }: { exposed: boolean; label: string; tex
 function AgentButton({ live, label, onIntercept }: { live: boolean; label: string; onIntercept: () => void }) {
   return (
     <button type="button" className="agent-cta" disabled={!live} onClick={onIntercept}>
-      {live ? label : "関所で停止中"}
+      {live ? label : "ここで停止中"}
     </button>
   );
 }

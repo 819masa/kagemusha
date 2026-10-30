@@ -8,7 +8,7 @@ interface LedgerModalProps {
 function skillLine(results: readonly ResultSnapshot[]): string {
   for (let index = results.length - 1; index >= 0; index -= 1) {
     const skill = results[index]?.outcome.skill;
-    if (skill === "sandbox") return "保留中：試用環境でおとり";
+    if (skill === "sandbox") return "保留中：試用環境で偽の連絡先";
     if (skill === "live") return "本番に装備された（危険）";
     if (skill === "off") return "装備していない";
   }

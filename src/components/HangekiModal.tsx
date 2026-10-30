@@ -118,7 +118,7 @@ export function HangekiModal({
             </button>
           ) : null}
           <button type="button" className="ghost" onClick={onClose}>
-            関所に戻る
+            戻る
           </button>
         </div>
       </section>
