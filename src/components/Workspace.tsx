@@ -9,10 +9,12 @@ interface WorkspaceProps {
   watchStep: number;
   exposed: boolean;
   result: ResultSnapshot | null;
+  showDecide: boolean;
+  onDecide: () => void;
   onIntercept: () => void;
 }
 
-export function Workspace({ scene, beat, watchStep, exposed, result, onIntercept }: WorkspaceProps) {
+export function Workspace({ scene, beat, watchStep, exposed, result, showDecide, onDecide, onIntercept }: WorkspaceProps) {
   const seal = result ? sealFor(result.outcome) : null;
   return (
     <section className="workspace" aria-label={`${scene.mind}の現場`}>
@@ -31,6 +33,11 @@ export function Workspace({ scene, beat, watchStep, exposed, result, onIntercept
           {scene.order}
         </p>
         <SceneBody scene={scene} exposed={exposed} beat={beat} onIntercept={onIntercept} />
+        {showDecide ? (
+          <button type="button" className="decide" data-testid="skip-gate" onClick={onDecide}>
+            判断へ
+          </button>
+        ) : null}
         <More label="経過を見る">
           {scene.auto && beat !== "watch" ? <p>{scene.auto.line}</p> : null}
           <ol className="steps">
