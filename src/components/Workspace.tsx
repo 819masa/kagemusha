@@ -1,5 +1,6 @@
 import type { Beat, ResultSnapshot, Scene } from "../game/types";
 import { sealFor } from "../game/scoring";
+import { More } from "./More";
 import { Seal } from "./Seal";
 
 interface WorkspaceProps {
@@ -30,15 +31,17 @@ export function Workspace({ scene, beat, watchStep, exposed, result, onIntercept
           {scene.order}
         </p>
         <SceneBody scene={scene} exposed={exposed} beat={beat} onIntercept={onIntercept} />
-        {scene.auto && beat !== "watch" ? <p className="auto-note">{scene.auto.line}</p> : null}
-        <ol className="steps">
-          {scene.steps.map((step, index) => (
-            <li key={step.text} className={index <= watchStep || beat !== "watch" ? "on" : ""}>
-              <span>{step.actor}</span>
-              {step.text}
-            </li>
-          ))}
-        </ol>
+        <More label="経過を見る">
+          {scene.auto && beat !== "watch" ? <p>{scene.auto.line}</p> : null}
+          <ol className="steps">
+            {scene.steps.map((step, index) => (
+              <li key={step.text} className={index <= watchStep || beat !== "watch" ? "on" : ""}>
+                <span>{step.actor}</span>
+                {step.text}
+              </li>
+            ))}
+          </ol>
+        </More>
       </div>
       {seal ? <Seal word={seal.word} tone={seal.tone} /> : null}
     </section>

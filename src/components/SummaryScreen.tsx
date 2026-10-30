@@ -2,6 +2,7 @@ import { SCENES } from "../game/scenarios";
 import { finalize, formatYen, stageLabel } from "../game/scoring";
 import type { GameAction } from "../game/reducer";
 import type { GameState } from "../game/types";
+import { More } from "./More";
 
 interface SummaryScreenProps {
   state: GameState;
@@ -43,6 +44,7 @@ export function SummaryScreen({ state, dispatch }: SummaryScreenProps) {
             <dd>手口 {totals.immunity}件</dd>
           </div>
         </dl>
+        <More label="内訳を見る">
         <ul className="metrics">
           <li>防いだ額 {formatYen(totals.yenPrevented)}</li>
           <li>被害額 {formatYen(totals.yenLost)}</li>
@@ -93,9 +95,7 @@ export function SummaryScreen({ state, dispatch }: SummaryScreenProps) {
             ))}
           </ol>
         </section>
-        <p className="fine">
-          ウォレットの「約18万ドル」は公開事例の規模を示すための架空の残高で、円の被害額には混ぜていない。人物と金額は架空。
-        </p>
+        </More>
         <div className="summary-actions">
           <button type="button" className="primary" onClick={() => dispatch({ type: "toggleReport" })}>
             下書きを見て通報する

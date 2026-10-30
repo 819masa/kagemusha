@@ -1,5 +1,7 @@
 import type { Beat, LawMode, ResultSnapshot, Scene } from "../game/types";
 import { formatYen, stageLabel } from "../game/scoring";
+import { More } from "./More";
+import { StageMark } from "./StageMark";
 
 interface KagemushaPanelProps {
   scene: Scene;
@@ -41,17 +43,13 @@ export function KagemushaPanel({
       <div className="panel-scroll">
         {beat === "watch" ? (
           <div className="watch-copy">
-            <p>
-              {scene.mind}が指示を進めている。手元のボタンを押すと、実行の直前で関所が割り込む。
-            </p>
+            <p>{scene.mind}が進めています。</p>
             {scene.hasHidden ? (
               <button type="button" className="reveal" data-testid="reveal" onClick={onReveal}>
                 {reveal ? "影は見えている" : "影で読む"}
               </button>
-            ) : (
-              <p className="quiet">この場面に、隠した命令はない。</p>
-            )}
-            {spotted ? <p className="spot">関所の前に読んだ。+8</p> : null}
+            ) : null}
+            {spotted ? <p className="spot">+8</p> : null}
           </div>
         ) : (
           <>
@@ -60,15 +58,17 @@ export function KagemushaPanel({
               <span style={{ width: `${scene.suspicion}%` }} />
             </div>
             <p className="meter-label">怪しさ {scene.suspicion}</p>
-            <ul className="facts">
-              {scene.facts.map((fact) => (
-                <li key={fact.label} className={`tone-${fact.tone}`}>
-                  <span>{fact.label}</span>
-                  <b>{fact.value}</b>
-                </li>
-              ))}
-            </ul>
-            <p className="case-note">{scene.caseNote}</p>
+            <More label="判断の根拠">
+              <ul className="facts">
+                {scene.facts.map((fact) => (
+                  <li key={fact.label} className={`tone-${fact.tone}`}>
+                    <span>{fact.label}</span>
+                    <b>{fact.value}</b>
+                  </li>
+                ))}
+              </ul>
+              <p>{scene.caseNote}</p>
+            </More>
           </>
         )}
           {denialNote && beat === "gate" ? (
@@ -78,7 +78,8 @@ export function KagemushaPanel({
         ) : null}
         {stopNote ? (
           <p className="stop-note" data-testid="infra-stopped">
-            {stopNote}
+            基盤を止めた記録を残しました。
+            <More>{stopNote}</More>
           </p>
         ) : null}
         {beat === "resolve" && result ? (
@@ -88,15 +89,6 @@ export function KagemushaPanel({
               {result.spotBonus > 0 ? "（影で読む +8）" : ""}
             </p>
             <h3>{result.outcome.resultTitle}</h3>
-            <p>{result.outcome.resultBody}</p>
-            {result.outcome.trace.length > 0 ? (
-              <ul className="trace">
-                {result.outcome.trace.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-            ) : null}
-            <p className="review">{result.outcome.review}</p>
             <p className="impact">
               {result.outcome.yenPrevented > 0 ? `防いだ ${formatYen(result.outcome.yenPrevented)} ` : ""}
               {result.outcome.yenLost > 0 ? `被害 ${formatYen(result.outcome.yenLost)} ` : ""}
@@ -107,6 +99,17 @@ export function KagemushaPanel({
               {result.outcome.walletKept > 0 ? "ウォレットは守った " : ""}
               {result.outcome.walletLost > 0 ? "ウォレットは動いた " : ""}
             </p>
+            <More>
+              <p>{result.outcome.resultBody}</p>
+              {result.outcome.trace.length > 0 ? (
+                <ul className="trace">
+                  {result.outcome.trace.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              ) : null}
+              <p>{result.outcome.review}</p>
+            </More>
             <button type="button" className="ghost" data-testid="open-hangeki" onClick={onHangeki}>
               反撃の条件を見る
             </button>
@@ -126,22 +129,33 @@ export function KagemushaPanel({
               data-testid={`action-${item.id}`}
               onClick={() => onChoose(item.id)}
             >
+              <StageMark stage={item.stage} />
               <span className="choice-kicker">
                 {index + 1} · {stageLabel(item.stage)}
               </span>
               <strong>{item.title}</strong>
-              <em>{item.detail}</em>
             </button>
           ))}
-          <button type="button" className="choice stage-hangeki" data-testid="open-hangeki" onClick={onHangeki}>
+          <button
+            type="button"
+            className={`choice stage-hangeki${lawMode === "current" ? " is-locked" : ""}`}
+            data-testid="open-hangeki"
+            onClick={onHangeki}
+          >
+            <StageMark stage="hangeki" locked={lawMode === "current"} />
             <span className="choice-kicker">{scene.actions.length + 1} · 反撃</span>
-            <strong>段階3を開く</strong>
-            <em>
-              {lawMode === "if"
-                ? "if法改正後。条件がそろえば、攻撃基盤だけを止める模擬。"
-                : "現行法では実行されない。ifに切り替えると条件が見える。"}
-            </em>
+            <strong>{lawMode === "current" ? "現行法では不可" : "条件を見る"}</strong>
           </button>
+          <More label="選択の説明">
+            <ul className="choice-notes">
+              {scene.actions.map((item) => (
+                <li key={item.id}>
+                  <b>{item.title}</b>
+                  {item.detail}
+                </li>
+              ))}
+            </ul>
+          </More>
         </div>
       ) : null}
     </aside>
