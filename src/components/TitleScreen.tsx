@@ -3,10 +3,10 @@ interface TitleScreenProps {
 }
 
 const STAGES = [
-  { name: "守る", text: "遮断・記録・通報。目印つきのおとりは、会話せずに流出元を見つける。" },
-  { name: "欺く", text: "隔離した偽物だけで相手とやり取りし、手口を引き出して免疫に配る。" },
-  { name: "反撃", text: "現行法ではしない。if法改正後は、正当防衛に準じた条件で、Kagemushaが攻撃基盤を止める。" },
-];
+  { name: "守る", stage: "mamoru" },
+  { name: "欺く", stage: "azamuku" },
+  { name: "反撃", stage: "hangeki" },
+] as const;
 
 export function TitleScreen({ onStart }: TitleScreenProps) {
   return (
@@ -21,21 +21,20 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <br />
         だから、攻めて守る。
       </p>
-      <p className="sub">
-        任せたMindの前に立ち、隠し命令と偽の窓口を止める。選ぶのは、守る・欺く・反撃。現行法の反撃は拒否される。if法改正後は、条件がそろったときだけ基盤を止める模擬になる。
-      </p>
-      <button type="button" className="primary" data-testid="title-start" onClick={onStart}>
+      <button type="button" className="primary cta" data-testid="title-start" onClick={onStart}>
         給料日を始める
       </button>
       <ol className="stage-row">
         {STAGES.map((stage) => (
-          <li key={stage.name}>
+          <li key={stage.name} className={`stage-chip stage-${stage.stage}`}>
             <strong>{stage.name}</strong>
-            <span>{stage.text}</span>
           </li>
         ))}
       </ol>
-      <p className="fine">実在のシステムには接続しない。攻撃も防御も、この画面の中だけ。</p>
+      <details className="more">
+        <summary>詳細を見る</summary>
+        <p>任せたMindの前に立ち、守る・欺く・反撃を選ぶ模擬です。実在のシステムには接続しません。</p>
+      </details>
     </main>
   );
 }
