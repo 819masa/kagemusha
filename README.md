@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-表示された URL（既定は `http://localhost:5173/`）を開きます。
+表示された URL（`http://localhost:5173/kagemusha/`）を開きます。パスは公開サイトと同じ `/kagemusha/` です。
 
 ```bash
 npm test          # 配点、現行法の拒否、if の条件付きの停止
@@ -50,12 +50,22 @@ npm run preview   # dist/ をローカルで配信
 | 夜のまとめ | 守った / 聞いた / 攻めた / 配った |
 | 通報下書き | 時刻、相手、要求だけ。未送信 |
 
+## 公開URL
+
+スライドに貼るアドレスは次です。
+
+https://819masa.github.io/kagemusha/
+
+`main` への push で `.github/workflows/pages.yml` がテストとビルドを行い、GitHub Pages に出します。Vite の `base` は `/kagemusha/` です。画面遷移はブラウザ内の状態だけで、別のパスには分かれません。
+
+この URL が開くには、リポジトリの Settings → Pages → Build and deployment → Source を **GitHub Actions** にしておく必要があります。ワークフローファイルだけではサイトは作られません。有効にしたあと、`main` へマージされた push が成功すると公開されます。
+
 ## デプロイ
 
 ビルド結果は `dist/` です。API も環境変数も要りません。
 
-- Vercel: フレームワークは Vite、出力は `dist`。リポジトリを取り込むだけで配信できます。
-- GitHub Pages: `npm run build` の `dist/` を公開します。`vite.config.ts` の `base` は `"./"` なので、プロジェクトサイトのサブパスでも相対パスのまま動きます。
+- GitHub Pages: 上記のワークフロー。成果物は `dist/`。
+- Vercel に載せる場合は、この `base`（`/kagemusha/`）のままだとアセットの場所がずれます。Vercel のルートで配信するなら `base` を `/` に戻してください。
 
 ## リポジトリの中
 

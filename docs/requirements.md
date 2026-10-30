@@ -166,7 +166,7 @@
 
 | 項目 | 要件 |
 | --- | --- |
-| 形態 | 静的サイト。Vite でビルドし、GitHub Pages または Vercel に載せられる。`base` は相対 |
+| 形態 | 静的サイト。Vite の `base` は `/kagemusha/`。`main` への push で GitHub Pages の https://819masa.github.io/kagemusha/ に出る。画面は単一の URL で、資産の参照もこの基準パスに従う |
 | 実行 | `npm install`、`npm run dev`、`npm test`、`npm run build` が、追加の秘密情報なしで通る |
 | 言語 | 画面、要件、README は日本語。プロダクト名は Kagemusha、段階名は 守る / 欺く / 反撃 |
 | 時間 | 八場面を「関所へ」で進めると、説明を読む速度で一回終わる（仮説: 8〜12分） |
