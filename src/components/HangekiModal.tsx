@@ -117,10 +117,10 @@ export function HangekiModal({
               通報の下書きだけ残す（反撃ではない）
             </button>
           ) : null}
-          <button type="button" className="ghost" onClick={onClose}>
-            戻る
-          </button>
         </div>
+        <button type="button" className="return-main" onClick={onClose}>
+          判断に戻る
+        </button>
       </section>
     </div>
   );

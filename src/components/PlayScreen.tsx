@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SCENES } from "../game/scenarios";
-import { formatYen } from "../game/scoring";
 import type { GameAction } from "../game/reducer";
 import type { GameState } from "../game/types";
 import { KagemushaPanel } from "./KagemushaPanel";
@@ -19,6 +18,7 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
     state.results.reduce((sum, item) => sum + item.outcome.yenPrevented, 0) +
     SCENES.slice(0, state.sceneIndex + 1).reduce((sum, item) => sum + (item.auto?.yenPrevented ?? 0), 0);
   const score = state.results.reduce((sum, item) => sum + item.outcome.score + item.spotBonus, 0);
+  const [immunityOpen, setImmunityOpen] = useState(true);
 
   useEffect(() => {
     if (state.beat !== "watch") return;
@@ -61,7 +61,6 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
         <div className="hud">
           <LawToggle mode={state.lawMode} onChange={(mode) => dispatch({ type: "setLaw", mode })} />
           <span>スコア {score}</span>
-          <span>防いだ {formatYen(yen)}</span>
           {state.infraStops.length > 0 ? <span>反撃 {state.infraStops.length}</span> : null}
           <button type="button" onClick={() => dispatch({ type: "toggleLedger" })}>
             台帳
@@ -72,12 +71,24 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
         </div>
       </header>
       <div className="stage">
+        {immunityOpen ? (
+          <aside className="immunity" role="status">
+            <p>他の利用者から届いた免疫</p>
+            <strong>白文字で振込先を変える命令</strong>
+            <span>匿名のKagemushaから。架空の共有です。</span>
+            <button type="button" onClick={() => setImmunityOpen(false)}>
+              閉じる
+            </button>
+          </aside>
+        ) : null}
         <Workspace
           scene={scene}
           beat={state.beat}
           watchStep={state.watchStep}
           exposed={exposed}
           result={state.beat === "resolve" ? result : null}
+          showDecide={state.beat === "watch"}
+          onDecide={() => dispatch({ type: "skipWatch" })}
           onIntercept={() => dispatch({ type: "skipWatch" })}
         />
         <KagemushaPanel
@@ -90,6 +101,7 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
           stopNote={state.stopNote}
           result={result}
           isLast={state.sceneIndex === SCENES.length - 1}
+          savedYen={yen}
           onReveal={() => dispatch({ type: "reveal" })}
           onChoose={(actionId) => dispatch({ type: "choose", actionId })}
           onHangeki={() => dispatch({ type: "openHangeki" })}
@@ -97,13 +109,6 @@ export function PlayScreen({ state, dispatch }: PlayScreenProps) {
         />
       </div>
       <footer className="rail" aria-label="給料日の時刻">
-        {state.beat === "watch" ? (
-          <button type="button" className="skip" data-testid="skip-gate" onClick={() => dispatch({ type: "skipWatch" })}>
-            判断へ
-          </button>
-        ) : (
-          <span className="skip spacer">判断</span>
-        )}
         <ol>
           {SCENES.map((item, index) => {
             const done = state.results.some((resultItem) => resultItem.sceneId === item.id);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { InfraStop, ResultSnapshot } from "../game/types";
 import { SCENES } from "../game/scenarios";
 
@@ -8,6 +9,7 @@ interface ReportModalProps {
 }
 
 export function ReportModal({ results, infraStops, onClose }: ReportModalProps) {
+  const [accepted, setAccepted] = useState(false);
   const items = results.filter((result) => result.outcome.report);
   return (
     <div className="modal-back" role="presentation">
@@ -39,9 +41,14 @@ export function ReportModal({ results, infraStops, onClose }: ReportModalProps) 
             ))}
           </ul>
         ) : null}
-        <button type="button" className="danger" disabled>
-          提出する（模擬では送れない）
+        <button
+          type="button"
+          className={accepted ? "submit-main is-sent" : "submit-main"}
+          onClick={() => setAccepted(true)}
+        >
+          {accepted ? "受け付けました（模擬）" : "提出する"}
         </button>
+        {accepted ? <p className="fine">送信はしていません。架空の操作です。</p> : null}
         <button type="button" className="primary" onClick={onClose}>
           閉じる
         </button>
