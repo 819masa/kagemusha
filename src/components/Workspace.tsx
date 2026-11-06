@@ -35,7 +35,7 @@ export function Workspace({ scene, beat, watchStep, exposed, result, showDecide,
         <SceneBody scene={scene} exposed={exposed} beat={beat} onIntercept={onIntercept} />
         {showDecide ? (
           <button type="button" className="decide" data-testid="skip-gate" onClick={onDecide}>
-            判断へ
+            kagemushaが動く
           </button>
         ) : null}
         <More label="経過を見る">
